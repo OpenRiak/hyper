@@ -285,7 +285,7 @@ estimate_report() ->
 
 
 run_report(P, Card, Repetitions) ->
-    {ok, Estimations} = lists:map(
+    Estimations = lists:map(
                           fun (I) ->
                                   io:format("~p values with p=~p, rep ~p~n",
                                             [Card, P, I]),

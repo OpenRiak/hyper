@@ -17,6 +17,6 @@ dialyzer:
 	$(REBAR) dialyzer
 
 xref:
-	$(REBAR) xref
+	$(REBAR) as test do xref
 
 check: test dialyzer xref

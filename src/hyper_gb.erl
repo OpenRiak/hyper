@@ -14,9 +14,14 @@
          decode_registers/2,
          compact/1]).
 
+-type hyper_tree() :: {gb_trees:tree(integer(), number()), number()}.
+
+
+-spec new(number()) -> hyper_tree().
 new(P) ->
     {gb_trees:empty(), trunc(math:pow(2, P))}.
 
+-spec get(integer(), hyper_tree()) -> {ok, number()} | undefined.
 get(Index, {T, _M}) ->
     case gb_trees:lookup(Index, T) of
         {value, V} ->
@@ -25,6 +30,7 @@ get(Index, {T, _M}) ->
             undefined
     end.
 
+-spec set(integer(), number(), hyper_tree()) -> hyper_tree().
 set(Index, Value, {T, M}) ->
     case gb_trees:lookup(Index, T) of
         {value, R} when R > Value->
@@ -33,48 +39,54 @@ set(Index, Value, {T, M}) ->
             {gb_trees:enter(Index, Value, T), M}
     end.
 
+-spec max_merge(list(hyper_tree())) -> hyper_tree().
 max_merge(Registers) ->
     [First | Rest] = Registers,
-    lists:foldl(fun (R, Acc) -> max_merge(R, Acc) end,
-                First, Rest).
+    lists:foldl(fun (R, Acc) -> max_merge(R, Acc) end, First, Rest).
 
-max_merge(Small, Big) ->
-    fold(fun (Index, L, Registers) ->
-                 case get(Index, Registers) of
-                      {ok, R} when R < L ->
-                          set(Index, L, Registers);
-                      {ok, _} ->
-                          Registers;
-                      undefined ->
-                          set(Index, L, Registers)
-                  end
-          end, Big, Small).
+-spec max_merge(hyper_tree(), hyper_tree()) -> hyper_tree().
+max_merge({Tree, _M}, InitAccTree) ->
+    TreeIter = gb_trees:iterator(Tree),
+    max_merge_mergetree(TreeIter, InitAccTree).
+
+max_merge_mergetree(TreeIter, AccTree) ->
+    case gb_trees:next(TreeIter) of
+        none ->
+            AccTree;
+        {Index, Value, TreeIter2} ->
+            case get(Index, AccTree) of
+                {ok, R} when R >= Value ->
+                    max_merge_mergetree(TreeIter2, AccTree);
+                _ ->
+                    max_merge_mergetree(TreeIter2, set(Index, Value, AccTree))
+            end
+    end.
+
 
 reduce_precision(_NewP, _Register) ->
     throw(not_implemented).
 
-fold(F, A, {{_, T}, _M}) when is_function(F, 3) ->
-    fold_1(F, A, T).
-
-fold_1(F, Acc0, {Key, Value, Small, Big}) ->
-    Acc1 = fold_1(F, Acc0, Small),
-    Acc = F(Key, Value, Acc1),
-    fold_1(F, Acc, Big);
-fold_1(_, Acc, _) ->
-    Acc.
 
 bytes({T, _}) ->
     erts_debug:flat_size(T) * 8.
 
 
--spec register_sum({gb_trees:tree(),number()}) -> float().
+-spec tree_sum(gb_trees:iter(integer(), number()),{integer(), number()} ) -> {integer(), number()}.
+tree_sum(TreeIter, {MaxIndex, Sum}) ->
+    case gb_trees:next(TreeIter) of
+        none ->
+            {MaxIndex, Sum};
+        {Index, Value, TreeIter2} ->
+            Zeroes = Index - MaxIndex - 1,
+            tree_sum(TreeIter2,
+                        {Index, Sum + math:pow(2, -Value) + float(Zeroes)})
+    end.
+
+-spec register_sum(hyper_tree()) -> float().
 register_sum({T, M}) ->
-    {MaxI, Sum} = fold(fun (Index, Value, {I, Acc}) ->
-                            Zeroes = Index - I - 1,
-                            {Index, Acc + math:pow(2, -Value) +
-                                 (math:pow(2, -0) * Zeroes)}
-                    end, {-1, 0}, {T, M}),
-    Sum + (M - 1 - MaxI) * math:pow(2, -0).
+    TreeIter = gb_trees:iterator(T),
+    {MaxI, Sum} = tree_sum(TreeIter, {-1, 0}),
+    Sum + float(M - 1 - MaxI).
 
 
 zero_count({T, M}) ->
