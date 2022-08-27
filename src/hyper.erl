@@ -14,8 +14,9 @@
 
 -ifdef(TEST).
 -export([
+    estimate_report/0,
+    perf_report/0,
     generate_unique/1,
-    rand_module/0,
     run_of_zeroes/1
 ]).
 -include_lib("eunit/include/eunit.hrl").
@@ -245,12 +246,12 @@ generate_unique(L, N) ->
 
 
 random_bytes(N) ->
-    random_bytes(N, rand_module(), []).
+    random_bytes(N, []).
 
-random_bytes(N, Mod, Result) when N > 0 ->
-    Int = Mod:uniform(100000000000000),
-    random_bytes((N - 1), Mod, [<<Int:64/integer>> | Result]);
-random_bytes(_, _, Result) ->
+random_bytes(N, Result) when N > 0 ->
+    Int = rand:uniform(100000000000000),
+    random_bytes((N - 1), [<<Int:64/integer>> | Result]);
+random_bytes(_, Result) ->
     Result.
 
 
@@ -265,29 +266,6 @@ median(Ns) ->
             (X1+X2)/2
     end.
 
-
-rand_module() ->
-    Key = {?MODULE, rand_mod},
-    case erlang:get(Key) of
-        undefined ->
-            Mod = case code:which(rand) of
-                non_existing ->
-                    M = random,
-                    case erlang:get(random_seed) of
-                        undefined ->
-                            _ = M:seed(os:timestamp()),
-                            M;
-                        _ ->
-                            M
-                    end;
-                _ ->
-                    rand
-            end,
-            _ = erlang:put(Key, Mod),
-            Mod;
-        Val ->
-            Val
-    end.
 
 %% ===================================================================
 %% Test Reports
@@ -360,8 +338,7 @@ perf_report() ->
 
 
     R = [begin
-             io:format(user, ".", []),
-             _ = random:seed(1, 2, 3),
+             io:put_chars(user, "."),
 
              M = trunc(math:pow(2, P)),
              InsertUs = Time(fun (Values, H) ->

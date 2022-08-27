@@ -1,40 +1,54 @@
-# rebar
+# ===== Common Erlang Tools =====
+*.coverdata
 *.crashdump
-/.cache/
-/.eqc*
-/.eunit/
-/.rebar/
-/.rebar3/
-/_build/
-/_checkouts
-/deps
-/rebar.lock
+*.eqc
+*.log
+*_plt
+.cache/
+.eqc-info
+.eqc
+.erlang.cookie
+.erlang.mk
+.eunit/
+.pulse/
+.qc/
+.rebar/
+.rebar3/
+_build/
+_checkouts/
+_deps/
+_test/
+ebin/
+log/
+logs/
+rebar.lock
 
-# work environments
+# ===== Common Development Tools =====
 *.bak
 *.dump
 *.iml
+*.orig
 *.plt
 *.sublime-project
 *.sublime-workspace
+*.swo
+*.swp
 *.tmp
-*_plt
 *~
-/*.txt
 .DS_Store
+.concrete/
 .idea/
 .project
 .settings/
 .tm_properties
+.vscode/
+/*.txt
 erln8.config
 tmp/
 
-# Erlang build/test artifacts
-*.app
-*.beam
+# ===== Project-specific Elements =====
+
 /doc/
-/ebin/
-log/
 
 # These get scribled by manual operations
 /estimates.csv

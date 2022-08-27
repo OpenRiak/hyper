@@ -1,7 +1,10 @@
 {application, hyper, [
     {description, "HyperLogLog"},
-    {vsn, git},
+    {vsn, "1.1.1"},
     {registered, []},
-    {applications, [kernel, stdlib]},
+    {applications, [
+        kernel,
+        stdlib
+    ]},
     {env, []}
 ]}.
