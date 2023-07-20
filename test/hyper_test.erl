@@ -11,6 +11,8 @@ hyper_test_() ->
                   {to_file, user}],
     RunProp = fun (P) ->
                       {timeout, 600,
+                       % All remaining dialyzer warnings emanate from this fun.
+                       % Not dealing with it.
                        fun () ->
                                ?assert(proper:quickcheck(P, ProperOpts))
                        end}
@@ -63,7 +65,7 @@ serialization_t() ->
 
 
 reduce_precision_t() ->
-    rand:seed(exsp, {10, 20, 30}),
+    _ = rand:seed(exsp, {10, 20, 30}),
     % This is a special value that causes the test to pass.  Different random
     % seeds may lead to failure - but most should lead to success.  Prior to
     % OTP 20 a different magic input was used (as random:seed/3 had different

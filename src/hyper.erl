@@ -45,7 +45,7 @@ new(P) ->
 new(P, Mod) when 4 =< P andalso P =< 16 andalso is_atom(Mod) ->
     #hyper{p = P, registers = {Mod, Mod:new(P)}}.
 
--spec is_hyper(filter()) -> boolean().
+-spec is_hyper(term()) -> boolean().
 is_hyper(#hyper{}) -> true;
 is_hyper(_) -> false.
 
