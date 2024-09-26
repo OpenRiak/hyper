@@ -5,7 +5,6 @@
 %% inserts to perform in the future.
 
 -module(hyper_binary).
--include_lib("eunit/include/eunit.hrl").
 -behaviour(hyper_register).
 %%-compile(native).
 
@@ -275,6 +274,8 @@ merge_buf(B, [{Index, Value} | Rest], PrevIndex, Acc) ->
 %%
 
 -ifdef(TEST).
+
+-include_lib("eunit/include/eunit.hrl").
 
 merge_test() ->
     P = 4, M = m(P),

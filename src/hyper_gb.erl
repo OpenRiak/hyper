@@ -1,5 +1,4 @@
 -module(hyper_gb).
--include_lib("eunit/include/eunit.hrl").
 
 -behaviour(hyper_register).
 -export([new/1,
@@ -130,6 +129,8 @@ do_decode_registers(<<Value:8/integer, Rest/binary>>, I) ->
 %% TESTS
 %%
 -ifdef(TEST).
+
+-include_lib("eunit/include/eunit.hrl").
 
 sum_test() ->
     T = set(3, 5, set(1, 1, new(4))),

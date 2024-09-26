@@ -7,5 +7,6 @@
                   kernel,
                   stdlib
                  ]},
+  {included_applications, [basho_stats]},
   {env, []}
  ]}.

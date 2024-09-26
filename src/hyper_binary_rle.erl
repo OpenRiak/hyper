@@ -1,5 +1,4 @@
 -module(hyper_binary_rle).
--include_lib("eunit/include/eunit.hrl").
 
 -export([new/1, set/3, compact/1, max_merge/1, max_merge/2,
          reduce_precision/2, bytes/1]).
@@ -199,6 +198,8 @@ take_repeat(<<Repeats:?REPEAT, Value:?VALUE, Rest/binary>>) ->
 %% TESTS
 %%
 -ifdef(TEST).
+
+-include_lib("eunit/include/eunit.hrl").
 
 format({rle, <<?MARKER, B/binary>>}) ->
     rle_to_list(B).
