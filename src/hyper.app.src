@@ -5,8 +5,9 @@
   {registered, []},
   {applications, [
                   kernel,
-                  stdlib
+                  stdlib,
+                  basho_stats
                  ]},
-  {included_applications, [basho_stats]},
+  {included_applications, []},
   {env, []}
  ]}.
