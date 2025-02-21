@@ -1,5 +1,6 @@
 -module(hyper_test).
 
+-include_lib("kernel/include/logger.hrl").
 -include_lib("proper/include/proper.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
@@ -237,7 +238,7 @@ many_union_t() ->
              true ->
                  ok;
              false ->
-                 error_logger:info_msg("too high error, expected ~.2f%, actual ~.2f%~n"
+                 ?LOG_INFO("too high error, expected ~.2f%, actual ~.2f%~n"
                                        "~p, p = ~p, card = ~p",
                                        [Error, Delta / (Card * NumSets), Mod, P, Card]),
                  ?assert(false)
@@ -374,45 +375,44 @@ gen_getset(Size, P) ->
 
 prop_set() ->
     ?FORALL(
-       {Mod, P}, {oneof(backends()), choose(4, 16)},
-       ?FORALL(
-          Values, gen_getset(P),
-          begin
-              R = lists:foldl(
-                    fun ({Index, ZeroCount}, Register) ->
-                            Mod:set(Index, ZeroCount, Register)
+        {Mod, P}, {oneof(backends()), choose(4, 16)},
+        ?FORALL(
+            Values, gen_getset(P),
+            begin
+                R = lists:foldl(
+                    fun({Index, ZeroCount}, Register) ->
+                        Mod:set(Index, ZeroCount, Register)
                     end, Mod:new(P), Values),
-              Max = lists:foldl(fun ({I, V}, Acc) ->
-                                        case dict:find(I, Acc) of
-                                            {ok, OtherV} when OtherV >= V ->
-                                                Acc;
-                                            _ ->
-                                                dict:store(I, V, Acc)
-                                        end
-                                end, dict:new(), Values),
-              Expected = lists:map(fun (I) ->
-                                           case dict:find(I, Max) of
-                                               {ok, V} ->
-                                                   <<V:8/integer>>;
-                                               error ->
-                                                   <<0>>
-                                           end
-                                   end, lists:seq(0, trunc(math:pow(2, P)) - 1)),
+                Max = lists:foldl(fun({I, V}, Acc) ->
+                    case dict:find(I, Acc) of
+                        {ok, OtherV} when OtherV >= V ->
+                            Acc;
+                        _ ->
+                            dict:store(I, V, Acc)
+                    end
+                end, dict:new(), Values),
+                Expected = lists:map(fun(I) ->
+                    case dict:find(I, Max) of
+                        {ok, V} ->
+                            <<V:8/integer>>;
+                        error ->
+                            <<0>>
+                    end
+                end, lists:seq(0, trunc(math:pow(2, P)) - 1)),
 
-              case Mod:encode_registers(Mod:compact(R))
-                  =:= iolist_to_binary(Expected) of
-                  true ->
-                      true;
-                  false ->
-                      %% error_logger:info_msg("values~n~p~n"
-                      %%                       "encoded~n~p~n"
-                      %%                       "expected~n~p~n",
-                      %%                       [Values,
-                      %%                        Mod:encode_registers(R),
-                      %%                        iolist_to_binary(Expected)]),
+                case Mod:encode_registers(Mod:compact(R))
+                    =:= iolist_to_binary(Expected) of
+                    true ->
+                        true;
+                    false ->
+                        ?LOG_ERROR(#{
+                            values => Values,
+                            encoded => Mod:encode_registers(R),
+                            expected => iolist_to_binary(Expected)
+                        }),
                         false
-              end
-          end)).
+                end
+            end)).
 
 prop_serialize() ->
     ?FORALL(

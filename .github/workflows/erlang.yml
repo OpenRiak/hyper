@@ -11,11 +11,18 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
-        otp: ['24']
-        rebar: ['3.22']
+        otp: ['24', '26']
+        rebar: ['3.22', '3.24']
+        exclude:
+          - otp: '24'
+            os: macos-latest
+          - rebar: '3.24'
+            otp: '24'
+          - rebar: '3.22'
+            otp: '26'
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: erlef/setup-beam@v1
         with:
           otp-version: ${{ matrix.otp }}

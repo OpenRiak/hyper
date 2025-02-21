@@ -1,5 +1,7 @@
 # HyperLogLog for Erlang
 
+[![Hyper OpenRiak Status](https://github.com/OpenRiak/hyper/actions/workflows/erlang.yml/badge.svg)](https://github.com/OpenRiak/hyper/actions/workflows/erlang.yml)
+
 This is an implementation of the HyperLogLog algorithm in
 Erlang. Using HyperLogLog you can estimate the cardinality of very
 large data sets using constant memory. The relative error is `1.04 *
@@ -35,9 +37,7 @@ for lower cardinalities.
 
 The errors introduced by estimations can be seen in this example:
 ```erlang
-3> random:seed(1,2,3).
-undefined
-4> Run = fun (P, Card) -> hyper:card(lists:foldl(fun (_, H) -> Int = random:uniform(10000000000000), hyper:insert(<<Int:64/integer>>, H) end, hyper:new(P), lists:seq(1, Card))) end.
+4> Run = fun(P, Card) -> hyper:card(lists:foldl(fun (_, H) -> Int = rand:uniform(10000000000000), hyper:insert(<<Int:64/integer>>, H) end, hyper:new(P), lists:seq(1, Card))) end.
 #Fun<erl_eval.12.80484245>
 5> Run(12, 10000).
 9992.846462080579
@@ -105,15 +105,17 @@ registers has a value other than 0.
 
  * `hyper_binary_rle`: Dud
 
-You can also implement your own backend. In `hyper_test` theres a
+You can also implement your own backend. In `hyper_test` there are a
 bunch of tests run for all backends, including some PropEr tests. The
 test suite will ensure your backend gives correct estimates and
 correctly encodes/decodes the serialized filters.
 
+## Reports
 
+### Backend Performance
 
 ```
-$ make perf_report
+$ rebar3 as test do shell --eval 'hyper:perf_report().' --eval 'halt().'
 ...
 
 module       P        card   fill      bytes  insert us   union ms    card ms    json ms
@@ -166,5 +168,17 @@ hyper_binary 15      50000   0.76      24576       0.92      13.55       2.81   
 hyper_binary 15     100000   0.95      24576       0.79      11.74       2.59       5.16
 hyper_binary 15    1000000   1.00      24576       0.55      13.88       2.64       5.11
 ```
+
+### Observed Error Rates
+
+> Requires [R](https://cran.r-project.org) with the
+> [`ggplot2`](https://cran.r-project.org/web/packages/ggplot2) package.
+
+```
+$ rebar3 as test do shell --eval 'hyper:estimate_report().' --eval 'halt().'
+$ bin/plot.R
+$ open hyper.png
+```
+
 
 [paper by Google]: http://static.googleusercontent.com/external_content/untrusted_dlcp/research.google.com/en//pubs/archive/40671.pdf

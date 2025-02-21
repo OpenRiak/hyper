@@ -270,12 +270,11 @@ median(Ns) ->
 %% ===================================================================
 %% Test Reports
 %% ===================================================================
-%%
-%% These take a VERY long time to run, making them just about unusable.
-%% TODO: They SHOULD be restructured to be more efficient.
-%% Possibilities include QuickCheck and/or parallel EUnit execution.
-%%
 
+%% Shell:
+%% $ rebar3 as test do shell --eval 'hyper:estimate_report().' --eval 'halt().'
+%% $ bin/plot.R
+%% $ open hyper.png
 estimate_report() ->
     Ps            = lists:seq(11, 16),
     Cardinalities = [100, 1000, 10000, 100000, 1000000],
@@ -316,6 +315,8 @@ run_report(P, Card, Repetitions) ->
     P95 = basho_stats_histogram:quantile(0.95, Hist),
     {Card, median(Estimations), P05, P95}.
 
+%% Shell:
+%% $ rebar3 as test do shell --eval 'hyper:perf_report().' --eval 'halt().'
 perf_report() ->
     Ps      = [15],
     Cards   = [1, 100, 500, 1000, 2500, 5000, 10000,

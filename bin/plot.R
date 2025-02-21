@@ -1,4 +1,4 @@
-#!/usr/bin/Rscript --vanilla
+#!/usr/bin/env Rscript --vanilla
 
 require("ggplot2")
 require("scales")

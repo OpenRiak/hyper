@@ -1,6 +1,6 @@
 {application, hyper, [
     {description, "HyperLogLog"},
-    {vsn, "1.1.2"},
+    {vsn, "1.2.0"},
     {registered, []},
     {applications, [
         kernel,

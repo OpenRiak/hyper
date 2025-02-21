@@ -6,6 +6,7 @@
          reduce_precision/2, bytes/1]).
 -export([register_sum/1, zero_count/1, encode_registers/1, decode_registers/2]).
 
+-include_lib("kernel/include/logger.hrl").
 -ifdef(TEST).
 -include_lib("eunit/include/eunit.hrl").
 -endif.
@@ -156,9 +157,12 @@ rle_insert(B, I, Index, Value) ->
     ChunkStart = I,
     ChunkEnd = ChunkStart + Repeats - 1,
 
-    %% error_logger:info_msg("~p repeated ~p times, I: ~p, Index: ~p, Value: ~p~n"
-    %%                       "chunk start: ~p, chunk end: ~p~n",
-    %%                       [RepeatValue, Repeats, I, Index, Value, ChunkStart, ChunkEnd]),
+     ?LOG_DEBUG(#{
+         message => lists:flatten(io_lib:format(
+             "~0tp repeated ~0tp times", [RepeatValue, Repeats])),
+         'I' => I, index => Index, value => Value,
+         chunk_start => ChunkStart, chunk_end => ChunkEnd
+     }),
 
     if
         %% Found the chunk where index and value belongs, doing
@@ -173,7 +177,7 @@ rle_insert(B, I, Index, Value) ->
         RepeatValue =/= Value ->
             LeftFill = Index - ChunkStart,
             RightFill = ChunkEnd - Index,
-            %% error_logger:info_msg("splitting chunk~n"),
+            ?LOG_DEBUG("splitting chunk"),
 
             Left = if LeftFill =:= 0 -> <<>>;
                       true -> <<?REPEAT(LeftFill), RepeatValue:?VALUE>>
@@ -184,11 +188,11 @@ rle_insert(B, I, Index, Value) ->
             [Left, <<?REPEAT(1), ?VALUE(Value)>>, Right, Rest];
 
         ChunkEnd < Index ->
-            %% error_logger:info_msg("chunk end < index (~p < ~p) recursing~n",
-            %%                       [ChunkEnd, Index]),
+            ?LOG_DEBUG("chunk end < index (~0tp < ~0tp) recursing",
+                [ChunkEnd, Index]),
 
             [<<?REPEAT(Repeats), ?VALUE(RepeatValue)>> |
-             rle_insert(Rest, ChunkEnd+1, Index, Value)]
+                rle_insert(Rest, ChunkEnd+1, Index, Value)]
     end.
 
 take_repeat(<<>>) ->

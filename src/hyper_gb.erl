@@ -136,6 +136,8 @@ do_decode_registers(<<Value:8/integer, Rest/binary>>, I) ->
 %%
 -ifdef(TEST).
 
+-include_lib("eunit/include/eunit.hrl").
+
 sum_test() ->
     T = set(3, 5, set(1, 1, new(4))),
 
