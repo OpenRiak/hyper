@@ -11,14 +11,10 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
-        otp: ['24', '26']
-        rebar: ['3.22', '3.24']
+        otp: ['26', '28']
+        rebar: ['3.24', '3.25']
         exclude:
-          - otp: '24'
-            os: macos-latest
-          - rebar: '3.24'
-            otp: '24'
-          - rebar: '3.22'
+          - rebar: '3.25'
             otp: '26'
 
     steps:

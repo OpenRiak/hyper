@@ -280,18 +280,30 @@ estimate_report() ->
     Cardinalities = [100, 1000, 10000, 100000, 1000000],
     Repetitions   = 50,
 
+    Owner = erlang:self(),
+    Procs = [erlang:spawn_link(
+        fun() ->
+            Stats = [run_report(P, Card, Repetitions)
+                || Card <- Cardinalities],
+            _ = erlang:send(Owner, {erlang:self(), P, Stats}),
+            ok
+        end) || P <- Ps],
+
     {ok, F} = file:open("estimates.csv", [write]),
     io:put_chars(F, "p,card,median,p05,p95\n"),
 
+    %% Procs is in order of ascending P
     lists:foreach(
-        fun(P) ->
-            Stats = [run_report(P, Card, Repetitions) || Card <- Cardinalities],
-            lists:foreach(fun ({Card, Median, P05, P95}) ->
-                io:format(F,
-                    "~p,~p,~p,~p,~p~n",
-                    [P, Card, Median, P05, P95])
-            end, Stats)
-        end, Ps),
+        fun(Proc) ->
+            {P, Stats} = receive {Proc, ProcP, ProcS} -> {ProcP, ProcS} end,
+            lists:foreach(
+                fun({Card, Median, P05, P95}) ->
+                    io:format(F,
+                        "~p,~p,~p,~p,~p~n",
+                        [P, Card, Median, P05, P95])
+                end, Stats)
+        end, Procs),
+
     io:nl(F),
     file:close(F).
 

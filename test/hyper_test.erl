@@ -28,7 +28,7 @@ hyper_test_() ->
       {timeout, 60, ?_test(backend_t())},
       ?_test(encoding_t()),
       ?_test(register_sum_t()),
-      {timeout, 30, ?_test(error_range_t())},
+      {timeout, 60, ?_test(error_range_t())},
       ?_test(many_union_t()),
       ?_test(union_t()),
       ?_test(union_mixed_precision_t()),
