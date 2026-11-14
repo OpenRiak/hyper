@@ -1,5 +1,6 @@
-.PHONY: compile rel cover test dialyzer
-REBAR=./rebar3
+.PHONY: compile cover test dialyzer xref check
+
+REBAR ?= ../riak/rebar3
 
 compile:
 	$(REBAR) compile

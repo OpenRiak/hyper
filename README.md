@@ -1,6 +1,6 @@
 # HyperLogLog for Erlang
 
-![Hyper OpenRiak Status](https://github.com/OpenRiak/hyper/actions/workflows/erlang.yml/badge.svg?branch=openriak-3.4)
+![Hyper OpenRiak Status](https://github.com/OpenRiak/hyper/actions/workflows/erlang.yml/badge.svg?branch=openriak-3.6)
 
 This is an implementation of the HyperLogLog algorithm in
 Erlang. Using HyperLogLog you can estimate the cardinality of very
